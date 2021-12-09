@@ -73,8 +73,7 @@ g:alternative['previous'] = 'BS'
 
 2.1 Variables
 =======================================
-There are some variables that can be set changes the behavior of
-cscope_dynamic.
+There are some variables that can be set to change the behavior of the plugin.
 
 g:debug                    Sets the debug switch on(1) and off(0).
 
