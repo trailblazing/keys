@@ -22,8 +22,7 @@ Tmux and Vim Tmux Navigator.
 ===============================================================================
 
 1. Installation
-1.1 Initialization
-1.2 Windows navigation key maps
+1.1 Windows navigation key maps
 2. Configurables
 2.1 Variables
 3. Tricks
@@ -31,8 +30,6 @@ Tmux and Vim Tmux Navigator.
 4. Compatibility
 5. Development
 6. References
-
-
 
 
 1. Installation
@@ -44,20 +41,7 @@ for Vim, or
 ~/.local/share/nvim/site/after/plugin/
 for Neovim.
 
-
-1.1 Initialization
-=======================================
-To manually init the plugin:
-
-if ! exists('g:keys_loaded')
-    let keys_load_path = g:plugin_dir . '/after/plugin/keys.vim'
-    execute "source "   . keys_load_path
-    execute "runtime! " . keys_load_path
-endif
-
-g:plugin_dir is ~/.vim for Vim and ~/.local/share/nvim/site for Neovim
-
-1.2 Windows navigation key maps
+1.1 Windows navigation key maps
 =======================================
 The plugin provides default key maps for windows navigation. You could remap 
 them by yourself from changing the global variables' value like this:
@@ -106,5 +90,6 @@ Basic functionality out of the box.
 7. References
 ===============================================================================
 [1] https://github.com/christoomey/vim-tmux-navigator
+[2] https://gist.github.com/mislav/5189704
 
 ```
