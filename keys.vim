@@ -19,7 +19,7 @@ let s:right    = 'right'
 let s:previous = 'previous'
 
 let g:navigate         = {}
-let s:map_check_result = {}
+" let s:map_check_result = {}
 let s:map_arg_result   = {}
 let s:system           = {}
 
