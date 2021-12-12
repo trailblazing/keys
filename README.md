@@ -84,10 +84,10 @@ machines that have a proper shell. It likely also functions under cygwin.
 ===============================================================================
 Pull requests are very welcome.
 
-6. Some updates, with the goal of minimizing interaction and configuration. 
+Some updates, with the goal of minimizing interaction and configuration.
 Basic functionality out of the box.
 
-7. References
+6. References
 ===============================================================================
 [1] https://github.com/christoomey/vim-tmux-navigator
 [2] https://gist.github.com/mislav/5189704
