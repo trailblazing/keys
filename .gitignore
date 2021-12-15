@@ -1,0 +1,12 @@
+cscope.*
+.cscope.*
+tags
+
+*.swp
+*.swo
+
+/.vim/
+
+.session.*
+.view.*
+.default.*
