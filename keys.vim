@@ -3,8 +3,8 @@
 
 
 
-if ! exists("g:debug")
-    let g:debug = 0
+if ! exists("g:keys_debug")
+    let g:keys_debug = 0
 endif
 
 " exec "set expandtab?"
@@ -68,14 +68,14 @@ function! keys#tmux_move(direction, navigate)
     " silent! execute "normal \<C-W>" . "\<C-" . system_key . ">\<CR>"
     " silent! execute 'wincmd ' . system_key
     silent! execute "normal \<C-W>" . system_key . "\<CR>"
-    if 1 == g:debug
+    if 1 == g:keys_debug
         echon "Cursor moved " . a:direction . " "
     endif
 
     " If the winnr is still the same after we moved, it is the last pane
     if wnr_original == winnr() && exists('$TMUX')
         if exists("g:loaded_tmux_navigator")
-            if 1 == g:debug
+            if 1 == g:keys_debug
                 echon "a:navigate['" . a:direction . "'] = " . a:navigate[a:direction]
             endif
             silent! execute a:navigate[a:direction]
@@ -90,8 +90,12 @@ function! keys#map_key_ad_hoc(direction, navigate)
 
     " let s:map_check_result['<C-' . alternative_key . '>'] = mapcheck('<C-' . alternative_key . '>', 'n')
     let s:map_arg_result['<C-' . alternative_key . '>'] = maparg('<C-' . alternative_key . '>', 'n', 'false')
-    " echom "mapcheck('<C-" . alternative_key . ">', 'n')      " . mapcheck('<C-' . alternative_key . '>', 'n')
-    echom "maparg('<C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-' . alternative_key . '>', 'n', 'false')
+
+    if 1 == g:keys_debug
+        " echom "mapcheck('<C-" . alternative_key . ">', 'n')      " . mapcheck('<C-' . alternative_key . '>', 'n')
+        echom "maparg('<C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-' . alternative_key . '>', 'n', 'false')
+    endif
+
     if s:map_arg_result['<C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
         let single_key_needs_overriding = 0
 
@@ -115,7 +119,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
                 silent! execute 'nunmap <C-' . alternative_key . '>'
             endif
         endif
-        if 1 == g:debug
+        if 1 == g:keys_debug
             echom "Establishing single mapping" . "<C-" . alternative_key . "> "
         endif
         " https://gemfury.com/malept/deb:neovim-runtime/-/content/usr/share/nvim/runtime/ftplugin/python.vim
@@ -125,7 +129,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
         " let s:map_check_result['<C-' . alternative_key . '>'] = mapcheck('<C-' . alternative_key . '>', 'n')
         let s:map_arg_result['<C-' . alternative_key . '>']   = maparg('<C-' . alternative_key . '>', 'n', 'false')
         if s:map_arg_result['<C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction . "', g:navigate)"
-        "     if 1 == g:debug
+        "     if 1 == g:keys_debug
         "         echom "Succeeded on mapcheck('<C-" . alternative_key . ">', 'n') " . mapcheck('<C-' . alternative_key . '>', 'n')
         "         echom "After map, s:map_check_result['<C-" . alternative_key . ">'] " . s:map_check_result['<C-' . alternative_key . '>']
         "         echom "After map, mapcheck('<C-" . alternative_key . ">', 'n')      " . mapcheck('<C-' . alternative_key . '>', 'n')
@@ -139,7 +143,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
         endif
     endif
 
-    if 1 == g:debug
+    if 1 == g:keys_debug
         echom "mapcheck('<C-" . alternative_key . ">', 'n')        " . mapcheck('<C-' . alternative_key . '>', 'n')
         echom "maparg('<C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-' . alternative_key . '>', 'n', 'false')
         " echom "s:map_check_result['<C-" . alternative_key . ">'] " . s:map_check_result['<C-' . alternative_key . '>']
@@ -149,8 +153,12 @@ function! keys#map_key_ad_hoc(direction, navigate)
 
     " let s:map_check_result['<C-W><C-' . alternative_key . '>'] = mapcheck('<C-W><C-' . alternative_key . '>', 'n')
     let s:map_arg_result['<C-W><C-' . alternative_key . '>']        = maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
-    " echom "mapcheck('<C-W><C-" . alternative_key . ">', 'n')      " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-    echom "maparg('<C-W><C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
+
+    if 1 == g:keys_debug
+        " echom "mapcheck('<C-W><C-" . alternative_key . ">', 'n')      " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
+        echom "maparg('<C-W><C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
+
+    endif
 
     if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
         if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !=? ""
@@ -160,7 +168,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
             echohl None
             silent! execute 'nunmap <C-W><C-' . alternative_key . '>'
         endif
-        if 1 == g:debug
+        if 1 == g:keys_debug
             echom "Establishing double mapping: " . "<C-W><C-" . alternative_key . "> "
         endif
         silent! execute "nnoremap <unique> <silent> <C-W><C-" . alternative_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
@@ -169,7 +177,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
         " let s:map_check_result['<C-W><C-' . alternative_key . '>'] = mapcheck('<C-W><C-' . alternative_key . '>', 'n')
         let s:map_arg_result['<C-W><C-' . alternative_key . '>']   = maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
         if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction . "', g:navigate)"
-        "     if 1 == g:debug
+        "     if 1 == g:keys_debug
         "         echom "Succeeded on mapcheck('<C-W><C-" . alternative_key . ">', 'n') " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
         "         echom "After map, s:map_check_result['<C-W><C-" . alternative_key . ">'] " . s:map_check_result['<C-W><C-' . alternative_key . '>']
         "         echom "After map, mapcheck('<C-W><C-" . alternative_key . ">', 'n')      " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
@@ -183,7 +191,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
         endif
     endif
 
-    if 1 == g:debug
+    if 1 == g:keys_debug
         echom "mapcheck('<C-W><C-" . alternative_key . ">', 'n')        " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
         echom "maparg('<C-W><C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
         " echom "s:map_check_result['<C-W><C-" . alternative_key . ">'] " . s:map_check_result['<C-W><C-' . alternative_key . '>']
@@ -191,8 +199,11 @@ function! keys#map_key_ad_hoc(direction, navigate)
         echom "a:navigate['" . a:direction . "']                  " . a:navigate[a:direction]
     endif
 
-    echom "\n\r" 
-    silent! execute '!printf "\n\n"' | redraw!
+    if 1 == g:keys_debug
+        echom "\n\r" 
+        silent! execute '!printf "\n\n"' | redraw!
+    endif
+
 endfunction
 
 if exists("g:loaded_tmux_navigator") && exists('$TMUX')
