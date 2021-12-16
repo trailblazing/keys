@@ -83,6 +83,7 @@ function! keys#tmux_move(direction, navigate)
             call system('tmux select-pane -' . tr(system_key, 'phjkl', 'lLDUR'))
         endif
     endif
+    redraw!
 endfunction
 
 function! keys#map_key_ad_hoc(direction, navigate)
