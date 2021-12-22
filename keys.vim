@@ -8,7 +8,7 @@ if ! exists("g:keys_debug")
 endif
 
 " exec "set expandtab?"
-if exists("g:keys_loaded")
+if exists("g:loaded_keys")
     finish
 endif
 
@@ -112,10 +112,10 @@ function! keys#map_key_ad_hoc(direction, navigate)
 
         if s:map_arg_result['<C-' . alternative_key . '>'] !=? ""
             let single_key_needs_overriding = 1
-            echom "Single key <C-" . alternative_key . "> needs overriding"
+            " echom "Single key <C-" . alternative_key . "> needs overriding"
             if 1 == single_key_needs_overriding
                 echohl WarningMsg
-                echom "Removing single mapping" . "<C-" . alternative_key . "> " . mapcheck('<C-' . alternative_key . '>', 'n')
+                echom "Single mapping " . "<C-" . alternative_key . "> " . mapcheck('<C-' . alternative_key . '>', 'n') . " has been removed."
                 echohl None
                 silent! execute 'nunmap <C-' . alternative_key . '>'
             endif
@@ -163,9 +163,9 @@ function! keys#map_key_ad_hoc(direction, navigate)
 
     if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
         if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !=? ""
-            echom "Double key <C-W><C-" . alternative_key . " needs overriding"
+            " echom "Double key <C-W><C-" . alternative_key . " needs overriding"
             echohl WarningMsg
-            echom "Removing double mapping" . "<C-W><C-" . alternative_key . "> " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
+            echom "Double mapping " . "<C-W><C-" . alternative_key . "> " . mapcheck('<C-W><C-' . alternative_key . '>', 'n'). " has been removed."
             echohl None
             silent! execute 'nunmap <C-W><C-' . alternative_key . '>'
         endif
@@ -232,7 +232,7 @@ call keys#map_key_ad_hoc(s:previous, g:navigate)
 
 
 
-let g:keys_loaded = 1
+let g:loaded_keys = 1
 
 " How to use hasmapto
 " if 1 == hasmapto(":call keys#tmux_move('l', g:navigate)<CR>", 'n')
