@@ -1,4 +1,4 @@
-" ctrl+h/j/k/l to switch windows in vim and tmux 
+" ctrl+h/j/k/l to switch windows in vim and tmux
 
 
 
@@ -8,9 +8,11 @@ if ! exists("g:keys_debug")
 endif
 
 " exec "set expandtab?"
-if exists("g:loaded_keys")
+if exists("g:keys_loaded")
     finish
 endif
+
+let g:keys_loaded = 1
 
 let s:up       = 'up'
 let s:down     = 'down'
@@ -40,7 +42,7 @@ let s:system[s:left]     = 'h'
 let s:system[s:right]    = 'l'
 let s:system[s:previous] = 'p'
 
-if ! has_key(g:alternative, s:up) 
+if ! has_key(g:alternative, s:up)
     let g:alternative[s:up]       = s:system[s:up]
 endif
 if ! has_key(g:alternative, s:down)
@@ -201,7 +203,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
     endif
 
     if 1 == g:keys_debug
-        echom "\n\r" 
+        echom "\n\r"
         silent! execute '!printf "\n\n"' | redraw!
     endif
 
@@ -228,11 +230,10 @@ call keys#map_key_ad_hoc(s:right,    g:navigate)
 call keys#map_key_ad_hoc(s:previous, g:navigate)
 
 
-" au! VimEnter * call keys#map_key_ad_hoc('k') | call keys#map_key_ad_hoc('j') | call keys#map_key_ad_hoc('h') | call keys#map_key_ad_hoc('l')  
+" au! VimEnter * call keys#map_key_ad_hoc('k') | call keys#map_key_ad_hoc('j') | call keys#map_key_ad_hoc('h') | call keys#map_key_ad_hoc('l')
 
 
 
-let g:loaded_keys = 1
 
 " How to use hasmapto
 " if 1 == hasmapto(":call keys#tmux_move('l', g:navigate)<CR>", 'n')
