@@ -66,10 +66,14 @@ function! keys#tmux_move(direction, navigate)
     endif
 
     let wnr_original = winnr()
+
     " silent! execute 'wincmd ' . 'C-' . system_key
     " silent! execute "normal \<C-W>" . "\<C-" . system_key . ">\<CR>"
-    " silent! execute 'wincmd ' . system_key
-    silent! execute "normal \<C-W>" . system_key . "\<CR>"
+
+    silent! execute 'wincmd ' . system_key
+    " Following command is not the same as above, it wil not switch to read-only buffers
+    " silent! execute "normal \<C-W>" . system_key . "\<CR>"
+
     if 1 == g:keys_debug
         echon "Cursor moved " . a:direction . " "
     endif
