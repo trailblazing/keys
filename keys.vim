@@ -25,15 +25,19 @@ let g:navigate         = {}
 let s:map_arg_result   = {}
 let s:system           = {}
 
-" let g:alternative  = {}
-" let g:alternative[s:up]       = 'Up'
-" let g:alternative[s:down]     = 'Down'
-" let g:alternative[s:left]     = 'Left'
-" let g:alternative[s:right]    = 'Right'
-" let g:alternative[s:previous] = 'BS'
+" let g:preferred_navi  = {}
+" let g:preferred_navi[s:up]       = 'Up'
+" let g:preferred_navi[s:down]     = 'Down'
+" let g:preferred_navi[s:left]     = 'Left'
+" let g:preferred_navi[s:right]    = 'Right'
+" let g:preferred_navi[s:previous] = 'BS'
 
-if ! exists("g:alternative")
-    let g:alternative  = {}
+if ! exists("g:conflict_resolve")
+    let g:conflict_resolve  = {}
+endif
+
+if ! exists("g:preferred_navi")
+    let g:preferred_navi  = {}
 endif
 
 let s:system[s:up]       = 'k'
@@ -42,37 +46,54 @@ let s:system[s:left]     = 'h'
 let s:system[s:right]    = 'l'
 let s:system[s:previous] = 'p'
 
-if ! has_key(g:alternative, s:up)
-    let g:alternative[s:up]       = s:system[s:up]
+if ! has_key(g:conflict_resolve, s:up)
+    let g:conflict_resolve[s:up]       = ''
 endif
-if ! has_key(g:alternative, s:down)
-    let g:alternative[s:down]     = s:system[s:down]
+if ! has_key(g:conflict_resolve, s:down)
+    let g:conflict_resolve[s:down]     = ''
 endif
-if ! has_key(g:alternative, s:left)
-    let g:alternative[s:left]     = s:system[s:left]
+if ! has_key(g:conflict_resolve, s:left)
+    let g:conflict_resolve[s:left]     = ''
 endif
-if ! has_key(g:alternative, s:right)
-    let g:alternative[s:right]    = s:system[s:right]
+if ! has_key(g:conflict_resolve, s:right)
+    let g:conflict_resolve[s:right]    = 'm'
 endif
-if ! has_key(g:alternative, s:previous)
-    " let g:alternative[s:previous] = s:system[s:previous]
-    let g:alternative[s:previous] = '\'
+if ! has_key(g:preferred_navi, s:previous)
+    let g:conflict_resolve[s:previous] = ''
+endif
+
+if ! has_key(g:preferred_navi, s:up)
+    let g:preferred_navi[s:up]       = s:system[s:up]
+endif
+if ! has_key(g:preferred_navi, s:down)
+    let g:preferred_navi[s:down]     = s:system[s:down]
+endif
+if ! has_key(g:preferred_navi, s:left)
+    let g:preferred_navi[s:left]     = s:system[s:left]
+endif
+if ! has_key(g:preferred_navi, s:right)
+    let g:preferred_navi[s:right]    = s:system[s:right]
+endif
+if ! has_key(g:preferred_navi, s:previous)
+    " let g:preferred_navi[s:previous] = s:system[s:previous]
+    " ctrl-p might be used for searching
+    let g:preferred_navi[s:previous] = '\'
 endif
 
 function! keys#tmux_move(direction, navigate)
-    let system_key = g:alternative[a:direction]
-    if  g:alternative[a:direction] !=? s:system[a:direction]
-        let system_key = s:system[a:direction]
+    let applied_key = g:preferred_navi[a:direction]
+    if  g:preferred_navi[a:direction] !=? s:system[a:direction]
+        let applied_key = s:system[a:direction]
     endif
 
     let wnr_original = winnr()
 
-    " silent! execute 'wincmd ' . 'C-' . system_key
-    " silent! execute "normal \<C-W>" . "\<C-" . system_key . ">\<CR>"
+    " silent! execute 'wincmd ' . 'C-' . applied_key
+    " silent! execute "normal \<C-W>" . "\<C-" . applied_key . ">\<CR>"
 
-    silent! execute 'wincmd ' . system_key
+    silent! execute 'wincmd ' . applied_key
     " Following command is not the same as above, it wil not switch to read-only buffers
-    " silent! execute "normal \<C-W>" . system_key . "\<CR>"
+    " silent! execute "normal \<C-W>" . applied_key . "\<CR>"
 
     if 1 == g:keys_debug
         echon "Cursor moved " . a:direction . " "
@@ -86,124 +107,126 @@ function! keys#tmux_move(direction, navigate)
             endif
             silent! execute a:navigate[a:direction]
         else
-            call system('tmux select-pane -' . tr(system_key, 'phjkl', 'lLDUR'))
+            call system('tmux select-pane -' . tr(applied_key, 'phjkl', 'lLDUR'))
         endif
     endif
     redraw!
 endfunction
 
 function! keys#map_key_ad_hoc(direction, navigate)
-    let alternative_key = g:alternative[a:direction]
+    let navi_key = g:preferred_navi[a:direction]
 
-    " let s:map_check_result['<C-' . alternative_key . '>'] = mapcheck('<C-' . alternative_key . '>', 'n')
-    let s:map_arg_result['<C-' . alternative_key . '>'] = maparg('<C-' . alternative_key . '>', 'n', 'false')
+    let s:map_arg_result['<C-' . navi_key . '>'] = maparg('<C-' . navi_key . '>', 'n', 'false')
 
     if 1 == g:keys_debug
-        " echom "mapcheck('<C-" . alternative_key . ">', 'n')      " . mapcheck('<C-' . alternative_key . '>', 'n')
-        echom "maparg('<C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-' . alternative_key . '>', 'n', 'false')
+        echom "maparg('<C-" . navi_key . ">', 'n', 'false') " . maparg('<C-' . navi_key . '>', 'n', 'false')
     endif
 
-    if s:map_arg_result['<C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
+    if s:map_arg_result['<C-' . navi_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
         let single_key_needs_overriding = 0
 
         " Don't worry, mapcheck will never return a list
-        " for eliment in s:map_check_result['<C-' . alternative_key . '>']
+        " for eliment in s:map_check_result['<C-' . navi_key . '>']
         "     if eliment !~? "tmux_move('" . a:direction. "', g:navigate)"
-        "         if s:map_check_result['<C-' . alternative_key . '>'] !=? ""
+        "         if s:map_check_result['<C-' . navi_key . '>'] !=? ""
         "             let single_key_needs_overriding = 1
         "             break
         "         endif
         "     endif
         " endfor
 
-        if s:map_arg_result['<C-' . alternative_key . '>'] !=? ""
+        if s:map_arg_result['<C-' . navi_key . '>'] !=? ""
             let single_key_needs_overriding = 1
-            " echom "Single key <C-" . alternative_key . "> needs overriding"
+            " echom "Single key <C-" . navi_key . "> needs overriding"
             if 1 == single_key_needs_overriding
-                echohl WarningMsg
-                echom "Single mapping " . "<C-" . alternative_key . "> " . mapcheck('<C-' . alternative_key . '>', 'n') . " has been removed."
-                echohl None
-                silent! execute 'nunmap <C-' . alternative_key . '>'
+                if g:conflict_resolve[a:direction] != ''
+                    if g:preferred_navi[a:direction] ==? 'l'
+                        " For neovim
+                        " help default-mappings
+                        " nnoremap <C-L> <Cmd>nohlsearch<Bar>diffupdate<CR><C-L>
+                        " if s:map_arg_result['<C-' . navi_key . '>'] =~? "<Cmd>nohlsearch<Bar>diffupdate<CR><C-L>"
+                        " nnoremap <C-;> <Cmd>nohlsearch<Bar>diffupdate<CR><C-L>
+                        silent! execute 'nnoremap <C-' . g:conflict_resolve[a:direction] . '> ' . ':nohlsearch <Bar> diffupdate<CR>'
+                        " nnoremap <C-m> :nohlsearch <Bar> diffupdate<CR>
+                        " endif
+                    else
+                        silent! execute 'nnoremap <C-' . g:conflict_resolve[a:direction] . '> ' . mapcheck('<C-' . navi_key . '>', 'n')
+                    endif
+                    echohl WarningMsg
+                    echom "Single mapping " . "<C-" . navi_key . "> " . mapcheck('<C-' . navi_key . '>', 'n') .
+                                \ " has been replaced with: \"" . "<C-" . g:conflict_resolve[a:direction] . "> "
+                                \ . maparg('<C-' . g:conflict_resolve[a:direction] . '>', '') .  "\""
+                    echohl None
+                else
+                    echohl WarningMsg
+                    echom "Single mapping " . "<C-" . navi_key . "> " . mapcheck('<C-' . navi_key . '>', 'n') .
+                                \ " has been removed"
+                    echohl None
+                endif
+                silent! execute 'nunmap <C-' . navi_key . '>'
             endif
         endif
         if 1 == g:keys_debug
-            echom "Establishing single mapping" . "<C-" . alternative_key . "> "
+            echom "Establishing single mapping" . "<C-" . navi_key . "> "
         endif
         " https://gemfury.com/malept/deb:neovim-runtime/-/content/usr/share/nvim/runtime/ftplugin/python.vim
-        silent! execute "nnoremap <unique> <silent> <C-" . alternative_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
-        " silent! execute "nmap <unique> <silent> <C-" . alternative_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
+        silent! execute "nnoremap <unique> <silent> <C-" . navi_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
 
-        " let s:map_check_result['<C-' . alternative_key . '>'] = mapcheck('<C-' . alternative_key . '>', 'n')
-        let s:map_arg_result['<C-' . alternative_key . '>']   = maparg('<C-' . alternative_key . '>', 'n', 'false')
-        if s:map_arg_result['<C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction . "', g:navigate)"
-        "     if 1 == g:keys_debug
-        "         echom "Succeeded on mapcheck('<C-" . alternative_key . ">', 'n') " . mapcheck('<C-' . alternative_key . '>', 'n')
-        "         echom "After map, s:map_check_result['<C-" . alternative_key . ">'] " . s:map_check_result['<C-' . alternative_key . '>']
-        "         echom "After map, mapcheck('<C-" . alternative_key . ">', 'n')      " . mapcheck('<C-' . alternative_key . '>', 'n')
-        "         echom "After map, maparg('<C-" . alternative_key . ">', 'n')        " . maparg('<C-' . alternative_key . '>', 'n')
-        "         echom "After map, a:navigate['" . a:direction . "']             " . a:navigate[a:direction]
-        "     endif
-        " else
+        let s:map_arg_result['<C-' . navi_key . '>']   = maparg('<C-' . navi_key . '>', 'n', 'false')
+        if s:map_arg_result['<C-' . navi_key . '>'] !~? "tmux_move('" . a:direction . "', g:navigate)"
             echohl WarningMsg
-            echom "Error occurred on " . "mapcheck('<C-" . alternative_key . ">', 'n')"
+            echom "Error occurred on " . "mapcheck('<C-" . navi_key . ">', 'n')"
             echohl None
         endif
     endif
 
     if 1 == g:keys_debug
-        echom "mapcheck('<C-" . alternative_key . ">', 'n')        " . mapcheck('<C-' . alternative_key . '>', 'n')
-        echom "maparg('<C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-' . alternative_key . '>', 'n', 'false')
-        " echom "s:map_check_result['<C-" . alternative_key . ">'] " . s:map_check_result['<C-' . alternative_key . '>']
-        echom "s:map_arg_result['<C-" . alternative_key . ">'] " . s:map_arg_result['<C-' . alternative_key . '>']
-        " echom "a:navigate['" . a:direction . "']             " . a:navigate[a:direction]
+        echom "mapcheck('<C-" . navi_key . ">', 'n')        " . mapcheck('<C-' . navi_key . '>', 'n')
+        echom "maparg('<C-" . navi_key . ">', 'n', 'false') " . maparg('<C-' . navi_key . '>', 'n', 'false')
+        echom "s:map_arg_result['<C-" . navi_key . ">'] " . s:map_arg_result['<C-' . navi_key . '>']
     endif
 
-    " let s:map_check_result['<C-W><C-' . alternative_key . '>'] = mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-    let s:map_arg_result['<C-W><C-' . alternative_key . '>']        = maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
+    let s:map_arg_result['<C-W><C-' . navi_key . '>']        = maparg('<C-W><C-' . navi_key . '>', 'n', 'false')
 
     if 1 == g:keys_debug
-        " echom "mapcheck('<C-W><C-" . alternative_key . ">', 'n')      " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-        echom "maparg('<C-W><C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
+        echom "maparg('<C-W><C-" . navi_key . ">', 'n', 'false') " . maparg('<C-W><C-' . navi_key . '>', 'n', 'false')
 
     endif
 
-    if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
-        if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !=? ""
-            " echom "Double key <C-W><C-" . alternative_key . " needs overriding"
-            echohl WarningMsg
-            echom "Double mapping " . "<C-W><C-" . alternative_key . "> " . mapcheck('<C-W><C-' . alternative_key . '>', 'n'). " has been removed."
-            echohl None
-            silent! execute 'nunmap <C-W><C-' . alternative_key . '>'
+    if s:map_arg_result['<C-W><C-' . navi_key . '>'] !~? "tmux_move('" . a:direction. "', g:navigate)"
+        if s:map_arg_result['<C-W><C-' . navi_key . '>'] !=? ""
+            if g:conflict_resolve[a:direction] != ''
+                silent! execute 'nnoremap <C-W><C-' . g:conflict_resolve[a:direction] . '> ' . mapcheck('<C-W><C-' . navi_key . '>', 'n')
+                echohl WarningMsg
+                echom "Single mapping " . "<C-W><C-" . navi_key . "> " . mapcheck('<C-W><C-' . navi_key . '>', 'n') .
+                            \ " has been replaced with: \"" . "<C-W><C-" . g:conflict_resolve[a:direction] . "> "
+                            \ . maparg('<C-W><C-' . g:conflict_resolve[a:direction] . '>', '') .  "\""
+                echohl None
+            else
+                echohl WarningMsg
+                echom "Double mapping " . "<C-W><C-" . navi_key . "> " . mapcheck('<C-W><C-' . navi_key . '>', 'n') . " has been removed."
+                echohl None
+            endif
+            silent! execute 'nunmap <C-W><C-' . navi_key . '>'
         endif
         if 1 == g:keys_debug
-            echom "Establishing double mapping: " . "<C-W><C-" . alternative_key . "> "
+            echom "Establishing double mapping: " . "<C-W><C-" . navi_key . "> "
         endif
-        silent! execute "nnoremap <unique> <silent> <C-W><C-" . alternative_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
-        " silent! execute "nmap <unique> <silent> <C-W><C-" . alternative_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
+        silent! execute "nnoremap <unique> <silent> <C-W><C-" . navi_key . "> :call keys#tmux_move('" . a:direction . "', g:navigate)<cr>"
 
-        " let s:map_check_result['<C-W><C-' . alternative_key . '>'] = mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-        let s:map_arg_result['<C-W><C-' . alternative_key . '>']   = maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
-        if s:map_arg_result['<C-W><C-' . alternative_key . '>'] !~? "tmux_move('" . a:direction . "', g:navigate)"
-        "     if 1 == g:keys_debug
-        "         echom "Succeeded on mapcheck('<C-W><C-" . alternative_key . ">', 'n') " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-        "         echom "After map, s:map_check_result['<C-W><C-" . alternative_key . ">'] " . s:map_check_result['<C-W><C-' . alternative_key . '>']
-        "         echom "After map, mapcheck('<C-W><C-" . alternative_key . ">', 'n')      " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-        "         echom "After map, maparg('<C-W><C-" . alternative_key . ">', 'n')        " . maparg('<C-W><C-' . alternative_key . '>', 'n')
-        "         echom "After map, a:navigate['" . a:direction . "']                  " . a:navigate[a:direction]
-        "     endif
-        " else
+        let s:map_arg_result['<C-W><C-' . navi_key . '>']   = maparg('<C-W><C-' . navi_key . '>', 'n', 'false')
+        if s:map_arg_result['<C-W><C-' . navi_key . '>'] !~? "tmux_move('" . a:direction . "', g:navigate)"
             echohl WarningMsg
-            echom "Error occurred on " . "mapcheck('<C-" . alternative_key . ">', 'n')"
+            echom "Error occurred on " . "mapcheck('<C-" . navi_key . ">', 'n')"
             echohl None
         endif
     endif
 
     if 1 == g:keys_debug
-        echom "mapcheck('<C-W><C-" . alternative_key . ">', 'n')        " . mapcheck('<C-W><C-' . alternative_key . '>', 'n')
-        echom "maparg('<C-W><C-" . alternative_key . ">', 'n', 'false') " . maparg('<C-W><C-' . alternative_key . '>', 'n', 'false')
-        " echom "s:map_check_result['<C-W><C-" . alternative_key . ">'] " . s:map_check_result['<C-W><C-' . alternative_key . '>']
-        echom "s:map_arg_result['<C-W><C-" . alternative_key . ">'] " . s:map_arg_result['<C-W><C-' . alternative_key . '>']
-        echom "a:navigate['" . a:direction . "']                  " . a:navigate[a:direction]
+        echom "mapcheck('<C-W><C-" . navi_key . ">', 'n')        " . mapcheck('<C-W><C-' . navi_key . '>', 'n')
+        echom "maparg('<C-W><C-" . navi_key . ">', 'n', 'false') " . maparg('<C-W><C-' . navi_key . '>', 'n', 'false')
+        echom "s:map_arg_result['<C-W><C-" . navi_key . ">'] " . s:map_arg_result['<C-W><C-' . navi_key . '>']
+        echom "a:navigate['" . a:direction . "']                 " . a:navigate[a:direction]
     endif
 
     if 1 == g:keys_debug
