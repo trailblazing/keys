@@ -12,10 +12,10 @@ Vim windows seamlessly.
 - `<ctrl-l>` => Right
 - `<ctrl-\>` => Previous split
 
-It is designed as an extension of 
-[Vim Tmux Navigator](https://github.com/christoomey/vim-tmux-navigator) 
+It is designed as an extension of
+[Vim Tmux Navigator](https://github.com/christoomey/vim-tmux-navigator)
 -- mappings allowing you to move between Vim panes and tmux splits seamlessly.
-Certainly keys.vim works well and independently in the environment without 
+Certainly keys.vim works well and independently in the environment without
 Tmux and Vim Tmux Navigator.
 
 ===============================================================================
@@ -37,13 +37,14 @@ Tmux and Vim Tmux Navigator.
 The plugin is only one file. So you can check out the repository[1] and drop
 keys.vim into your directory:
 ~/.vim/after/plugin/
-for Vim, or 
+for Vim, or
 ~/.local/share/nvim/site/after/plugin/
 for Neovim.
+Or, just install it as a normal plugin by using your package manager.
 
 1.1 Windows navigation key maps
 =======================================
-The plugin provides default key maps for windows navigation. You could remap 
+The plugin provides default key maps for windows navigation. You could remap
 them by yourself from changing the global variables' value like this:
 let g:alternative         = {}
 g:alternative['up']       = 'Up'
