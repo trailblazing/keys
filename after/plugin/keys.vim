@@ -158,10 +158,12 @@ function! keys#map_key_ad_hoc(direction, navigate)
                                 \ . maparg('<C-' . g:conflict_resolve[a:direction] . '>', '') .  "\""
                     echohl None
                 else
-                    echohl WarningMsg
-                    echom "Single mapping " . "<C-" . navi_key . "> " . mapcheck('<C-' . navi_key . '>', 'n') .
-                                \ " has been removed"
-                    echohl None
+                    if 1 == g:keys_debug
+                        echohl WarningMsg
+                        echom "Single mapping " . "<C-" . navi_key . "> " . mapcheck('<C-' . navi_key . '>', 'n') .
+                            \ " has been removed"
+                        echohl None
+                    endif
                 endif
                 silent! execute 'nunmap <C-' . navi_key . '>'
             endif
@@ -203,9 +205,11 @@ function! keys#map_key_ad_hoc(direction, navigate)
                             \ . maparg('<C-W><C-' . g:conflict_resolve[a:direction] . '>', '') .  "\""
                 echohl None
             else
-                echohl WarningMsg
-                echom "Double mapping " . "<C-W><C-" . navi_key . "> " . mapcheck('<C-W><C-' . navi_key . '>', 'n') . " has been removed."
-                echohl None
+                if 1 == g:keys_debug
+                    echohl WarningMsg
+                    echom "Double mapping " . "<C-W><C-" . navi_key . "> " . mapcheck('<C-W><C-' . navi_key . '>', 'n') . " has been removed."
+                    echohl None
+                endif
             endif
             silent! execute 'nunmap <C-W><C-' . navi_key . '>'
         endif
