@@ -101,14 +101,18 @@ function! keys#tmux_move(direction, navigate)
 
     " If the winnr is still the same after we moved, it is the last pane
     if wnr_original == winnr() && exists('$TMUX')
-        if exists("g:loaded_tmux_navigator")
-            if 1 == g:keys_debug
-                echon "a:navigate['" . a:direction . "'] = " . a:navigate[a:direction]
-            endif
-            silent! execute a:navigate[a:direction]
-        else
+        " if exists("g:loaded_tmux_navigator")
+        "     if 1 == g:keys_debug
+        "         echon "a:navigate['" . a:direction . "'] = " . a:navigate[a:direction]
+        "         " Error detected while processing function keys#tmux_move:
+        "         " line   25:
+        "         " a:navigate['left']                 :TmuxNavigateLeft
+        "         " E171: Missing :endif
+        "     endif
+        "     silent! execute(a:navigate[a:direction])
+        " else
             call system('tmux select-pane -' . tr(applied_key, 'phjkl', 'lLDUR'))
-        endif
+        " endif
     endif
     redraw!
 endfunction
