@@ -1,8 +1,5 @@
 " ctrl+h/j/k/l to switch windows in vim and tmux
 
-
-
-
 if ! exists("g:keys_debug")
     let g:keys_debug = 0
 endif
@@ -56,7 +53,9 @@ if ! has_key(g:conflict_resolve, s:left)
     let g:conflict_resolve[s:left]     = ''
 endif
 if ! has_key(g:conflict_resolve, s:right)
-    let g:conflict_resolve[s:right]    = 'm'
+    " let g:conflict_resolve[s:right]    = 'm'
+    let g:conflict_resolve[s:right]    = ';'
+    " let g:conflict_resolve[s:right]    = '/'
 endif
 if ! has_key(g:preferred_navi, s:previous)
     let g:conflict_resolve[s:previous] = ''
@@ -80,6 +79,32 @@ if ! has_key(g:preferred_navi, s:previous)
     let g:preferred_navi[s:previous] = '\'
 endif
 
+function! s:save_file_via_doas() abort
+    " https://askubuntu.com/questions/454649/how-can-i-change-the-default-editor-of-the-sudoedit-command-to-be-vim
+    " https://unix.stackexchange.com/questions/90866/sudoedit-vim-force-write-update-without-quit/635704#635704
+    " inotifywait
+    " https://github.com/lambdalisue/suda.vim
+    " echo executable('sudo')
+    " https://github.com/vim-scripts/sudo.vim
+    "     (command line): vim sudo:/etc/passwd
+    "     (within vim):   :e sudo:/etc/passwd
+    if executable('doas')
+        execute (has('gui_running') ? '' : 'silent') 'write !env EDITOR=tee doasedit ' . shellescape(expand('%')) . ' >/dev/null '
+        " execute (has('gui_running') ? '' : 'silent') 'write !env EDITOR=doasedit doas -e ' . shellescape(expand('%')) . ' >/dev/null '
+    elseif executable('sudo')
+        execute (has('gui_running') ? '' : 'silent') 'write !env SUDO_EDITOR=tee sudo -e ' . shellescape(expand('%')) . ' >/dev/null '
+    endif
+    let &modified = v:shell_error
+endfunction
+
+function! s:write_generic()
+    if system(['whoami']) == system(['stat', '-c', '%U', expand('%')])
+        write
+    else
+        call s:save_file_via_doas()
+    endif
+endfunction
+
 function! keys#tmux_move(direction, navigate)
     let applied_key = g:preferred_navi[a:direction]
     if  g:preferred_navi[a:direction] !=? s:system[a:direction]
@@ -101,18 +126,34 @@ function! keys#tmux_move(direction, navigate)
 
     " If the winnr is still the same after we moved, it is the last pane
     if wnr_original == winnr() && exists('$TMUX')
-        " if exists("g:loaded_tmux_navigator")
-        "     if 1 == g:keys_debug
-        "         echon "a:navigate['" . a:direction . "'] = " . a:navigate[a:direction]
-        "         " Error detected while processing function keys#tmux_move:
-        "         " line   25:
-        "         " a:navigate['left']                 :TmuxNavigateLeft
-        "         " E171: Missing :endif
-        "     endif
-        "     silent! execute(a:navigate[a:direction])
-        " else
-            call system('tmux select-pane -' . tr(applied_key, 'phjkl', 'lLDUR'))
-        " endif
+
+        " # # https://github.com/christoomey/vim-tmux-navigator
+        " # /mnt/vinit/nvim/init.vim
+        " # " let g:vim_packages_use['christoomey/vim-tmux-navigator']             = { 'type' : 'start' }
+        " # /mnt/vinit/vim/pack/packager/start/keys/after/plugin/keys.vim
+        " # "     silent! execute(a:navigate[a:direction])
+        " # /mnt/tinit/tmux.conf
+        " # set -g @plugin 'christoomey/vim-tmux-navigator'
+
+        if exists("g:loaded_tmux_navigator")
+            if 1 == g:keys_debug
+                echon "a:navigate['" . a:direction . "'] = " . a:navigate[a:direction]
+                " Error detected while processing function keys#tmux_move:
+                " line   25:
+                " a:navigate['left']                 :TmuxNavigateLeft
+                " E171: Missing :endif
+            endif
+            " silent! execute(a:navigate[a:direction])
+            " execute "try\na:navigate[a:direction]\ncatch\nendtry"
+            silent! call <sid>write_generic()
+            try
+                execute(a:navigate[a:direction])
+            catch
+            endtry
+        else
+          " call system('tmux select-pane -' . tr(applied_key, 'phjkl', 'lLDUR'))
+          silent! execute('!tmux select-pane -' . tr(applied_key, 'phjkl', 'lLDUR'))
+        endif
     endif
     redraw!
 endfunction
