@@ -5,11 +5,11 @@ if ! exists("g:keys_debug")
 endif
 
 " exec "set expandtab?"
-if exists("g:keys_loaded")
+if exists("g:loaded_keys")
     finish
 endif
 
-let g:keys_loaded = 1
+let g:loaded_keys = 1
 
 let s:up       = 'up'
 let s:down     = 'down'
