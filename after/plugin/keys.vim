@@ -79,32 +79,6 @@ if ! has_key(g:preferred_navi, s:previous)
     let g:preferred_navi[s:previous] = '\'
 endif
 
-function! s:save_file_via_doas() abort
-    " https://askubuntu.com/questions/454649/how-can-i-change-the-default-editor-of-the-sudoedit-command-to-be-vim
-    " https://unix.stackexchange.com/questions/90866/sudoedit-vim-force-write-update-without-quit/635704#635704
-    " inotifywait
-    " https://github.com/lambdalisue/suda.vim
-    " echo executable('sudo')
-    " https://github.com/vim-scripts/sudo.vim
-    "     (command line): vim sudo:/etc/passwd
-    "     (within vim):   :e sudo:/etc/passwd
-    if executable('doas')
-        execute (has('gui_running') ? '' : 'silent') 'write !env EDITOR=tee doasedit ' . shellescape(expand('%')) . ' >/dev/null '
-        " execute (has('gui_running') ? '' : 'silent') 'write !env EDITOR=doasedit doas -e ' . shellescape(expand('%')) . ' >/dev/null '
-    elseif executable('sudo')
-        execute (has('gui_running') ? '' : 'silent') 'write !env SUDO_EDITOR=tee sudo -e ' . shellescape(expand('%')) . ' >/dev/null '
-    endif
-    let &modified = v:shell_error
-endfunction
-
-function! s:write_generic()
-    if system(['whoami']) == system(['stat', '-c', '%U', expand('%')])
-        write
-    else
-        call s:save_file_via_doas()
-    endif
-endfunction
-
 function! keys#tmux_move(direction, navigate)
     let applied_key = g:preferred_navi[a:direction]
     if  g:preferred_navi[a:direction] !=? s:system[a:direction]
@@ -145,7 +119,7 @@ function! keys#tmux_move(direction, navigate)
             endif
             " silent! execute(a:navigate[a:direction])
             " execute "try\na:navigate[a:direction]\ncatch\nendtry"
-            silent! call <sid>write_generic()
+            silent! call boot#write_generic()
             try
                 execute(a:navigate[a:direction])
             catch
