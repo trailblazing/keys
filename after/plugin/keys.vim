@@ -85,6 +85,8 @@ function! keys#tmux_move(direction, navigate)
         let applied_key = s:system[a:direction]
     endif
 
+    silent! call boot#write_generic()
+
     let wnr_original = winnr()
 
     " silent! execute 'wincmd ' . 'C-' . applied_key
@@ -119,7 +121,6 @@ function! keys#tmux_move(direction, navigate)
             endif
             " silent! execute(a:navigate[a:direction])
             " execute "try\na:navigate[a:direction]\ncatch\nendtry"
-            silent! call boot#write_generic()
             try
                 execute(a:navigate[a:direction])
             catch
