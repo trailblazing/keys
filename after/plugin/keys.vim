@@ -262,24 +262,22 @@ endfunction
 
 " Write buffer will enable navigation keys work again while sometimes it was in a buggy trap of vim-tmux-navigator
 " User defined key maps
-function! s:keys_reload()
+function! s:reload()
     " packadd keys
     " Don't do this manually before all plugins loaded, keys.vim will not notice vim-tmux-navigator
     " correctly -- even you put it after vim-tmux-navigator
-    " if ! exists('g:loaded_keys')
-    "     let keys_load_path = g:plugin_dir['vim'] . '/after/plugin/keys.vim'
-    "     execute "source " .   keys_load_path
-    "     execute "runtime! " . keys_load_path
-    " endif
 
     if exists('g:loaded_keys')
         unlet g:loaded_keys
     endif
     " let g:debug_keys    = 1
-    let keys_load_path  = g:plugin_dir['vim'] . '/pack/packager/start/keys/after/keys.vim'
-    silent! execute "source " . keys_load_path
-    silent! execute "runtime! " . keys_load_path
+    " let keys_load_path  = g:plugin_dir['vim'] . '/after/plugin/keys.vim'
+    " let keys_load_path  = g:plugin_dir['vim'] . '/pack/packager/start/keys/after/keys.vim'
+    silent! execute "source " . expand('%')
+    silent! execute "runtime! " . expand('%')
 endfunction
+
+command! -nargs=0 KR :call s:reload()
 
 if exists("g:loaded_tmux_navigator") && exists('$TMUX')
     let g:navigate[s:up]       = ':TmuxNavigateUp'
@@ -300,8 +298,6 @@ call keys#map_key_ad_hoc(s:down,     g:navigate)
 call keys#map_key_ad_hoc(s:left,     g:navigate)
 call keys#map_key_ad_hoc(s:right,    g:navigate)
 call keys#map_key_ad_hoc(s:previous, g:navigate)
-
-command! -nargs=0 KR :call s:keys_reload()
 
 " au! VimEnter * call keys#map_key_ad_hoc('k') | call keys#map_key_ad_hoc('j') | call keys#map_key_ad_hoc('h') | call keys#map_key_ad_hoc('l')
 
