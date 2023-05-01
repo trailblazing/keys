@@ -260,6 +260,27 @@ function! keys#map_key_ad_hoc(direction, navigate)
 
 endfunction
 
+" Write buffer will enable navigation keys work again while sometimes it was in a buggy trap of vim-tmux-navigator
+" User defined key maps
+function! s:keys_reload()
+    " packadd keys
+    " Don't do this manually before all plugins loaded, keys.vim will not notice vim-tmux-navigator
+    " correctly -- even you put it after vim-tmux-navigator
+    " if ! exists('g:loaded_keys')
+    "     let keys_load_path = g:plugin_dir['vim'] . '/after/plugin/keys.vim'
+    "     execute "source " .   keys_load_path
+    "     execute "runtime! " . keys_load_path
+    " endif
+
+    if exists('g:loaded_keys')
+        unlet g:loaded_keys
+    endif
+    " let g:debug_keys    = 1
+    let keys_load_path  = g:plugin_dir['vim'] . '/pack/packager/start/keys/after/keys.vim'
+    silent! execute "source " . keys_load_path
+    silent! execute "runtime! " . keys_load_path
+endfunction
+
 if exists("g:loaded_tmux_navigator") && exists('$TMUX')
     let g:navigate[s:up]       = ':TmuxNavigateUp'
     let g:navigate[s:down]     = ':TmuxNavigateDown'
@@ -280,11 +301,9 @@ call keys#map_key_ad_hoc(s:left,     g:navigate)
 call keys#map_key_ad_hoc(s:right,    g:navigate)
 call keys#map_key_ad_hoc(s:previous, g:navigate)
 
+command! -nargs=0 KR :call s:keys_reload()
 
 " au! VimEnter * call keys#map_key_ad_hoc('k') | call keys#map_key_ad_hoc('j') | call keys#map_key_ad_hoc('h') | call keys#map_key_ad_hoc('l')
-
-
-
 
 " How to use hasmapto
 " if 1 == hasmapto(":call keys#tmux_move('l', g:navigate)<CR>", 'n')
