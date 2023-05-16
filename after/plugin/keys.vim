@@ -173,7 +173,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
                         silent! execute 'nnoremap <C-' . g:conflict_resolve[a:direction] . '> ' . mapcheck('<C-' . navi_key . '>', 'n')
                     endif
                     echohl WarningMsg
-                    echom "Single mapping " . "<C-" . navi_key . "> " . mapcheck('<C-' . navi_key . '>', 'n') .
+                    echon "Single mapping " . "<C-" . navi_key . "> " . mapcheck('<C-' . navi_key . '>', 'n') .
                                 \ " has been replaced with: \"" . "<C-" . g:conflict_resolve[a:direction] . "> "
                                 \ . maparg('<C-' . g:conflict_resolve[a:direction] . '>', '') .  "\""
                     echohl None
@@ -220,7 +220,7 @@ function! keys#map_key_ad_hoc(direction, navigate)
             if g:conflict_resolve[a:direction] != ''
                 silent! execute 'nnoremap <C-W><C-' . g:conflict_resolve[a:direction] . '> ' . mapcheck('<C-W><C-' . navi_key . '>', 'n')
                 echohl WarningMsg
-                echom "Single mapping " . "<C-W><C-" . navi_key . "> " . mapcheck('<C-W><C-' . navi_key . '>', 'n') .
+                echon "Single mapping " . "<C-W><C-" . navi_key . "> " . mapcheck('<C-W><C-' . navi_key . '>', 'n') .
                             \ " has been replaced with: \"" . "<C-W><C-" . g:conflict_resolve[a:direction] . "> "
                             \ . maparg('<C-W><C-' . g:conflict_resolve[a:direction] . '>', '') .  "\""
                 echohl None
