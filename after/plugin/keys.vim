@@ -85,7 +85,9 @@ function! keys#tmux_move(direction, navigate)
         let applied_key = s:system[a:direction]
     endif
 
-    silent! call boot#write_generic()
+    if "" == &buftype && 0 != &modified
+        silent! call boot#write_generic()
+    endif
 
     let wnr_original = winnr()
 
