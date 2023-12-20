@@ -144,11 +144,11 @@ function! keys#tmux_move(direction, navigate)
 				" silent! execute('!tmux select-pane -' . tr(applied_key, 'phjkl', 'lLDUR'))
 				call system(['/usr/bin/tmux', 'select-pane', '-'
 					\ . tr(applied_key, 'phjkl', 'lLDUR')])
-				call feedkeys("\<CR>")
+				" call feedkeys("\<CR>")
 			else
 				call system("sh -c '/usr/bin/tmux select-pane -"
 					\ . tr(applied_key, 'phjkl', 'lLDUR') . "'")
-				call feedkeys("\<CR>")
+				" call feedkeys("\<CR>")
 			endif
 			let l:wnr_original = winnr()
 		endif
