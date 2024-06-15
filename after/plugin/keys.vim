@@ -380,6 +380,27 @@ augroup focus_changed
 	autocmd FocusGained,WinEnter * call s:focus(0)
 augroup END
 
+" [is_vim does not detect vim running in a subshell #295](https://github.com/christoomey/vim-tmux-navigator/issues/295)
+function! s:set_is_vim()
+	" call s:TmuxCommand("set-option -p @is_vim yes")
+	call system("tmux set-option -p @is_vim \"on\"")
+endfunction
+
+function! s:unset_is_vim()
+	" call s:TmuxCommand("set-option -p -u @is_vim")
+	call system("tmux set-option -p -u @is_vim")
+endfunction
+
+augroup tmux_is_vim
+	au!
+	autocmd VimEnter * call <SID>set_is_vim()
+	autocmd VimLeave * call <SID>unset_is_vim()
+	if exists('##VimSuspend')
+		autocmd VimSuspend * call <SID>unset_is_vim()
+		autocmd VimResume * call <SID>set_is_vim()
+	endif
+augroup END
+
 " au! VimEnter * call keys#map_key_ad_hoc('k') | call keys#map_key_ad_hoc('j') | call keys#map_key_ad_hoc('h') | call keys#map_key_ad_hoc('l')
 
 " How to use hasmapto
