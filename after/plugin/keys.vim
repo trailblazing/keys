@@ -381,23 +381,21 @@ augroup focus_changed
 augroup END
 
 " [is_vim does not detect vim running in a subshell #295](https://github.com/christoomey/vim-tmux-navigator/issues/295)
-function! s:set_is_vim()
-	" call s:TmuxCommand("set-option -p @is_vim yes")
-	call system("tmux set-option -p @is_vim \"on\"")
+function! s:is_vim_set()
+	call system(split('/usr/bin/tmux set-option -p @is-vim on'))
 endfunction
 
-function! s:unset_is_vim()
-	" call s:TmuxCommand("set-option -p -u @is_vim")
-	call system("tmux set-option -p -u @is_vim")
+function! s:is_vim_unset()
+	call system(split('/usr/bin/tmux set-option -p -u @is-vim'))
 endfunction
 
 augroup tmux_is_vim
 	au!
-	autocmd VimEnter * call <SID>set_is_vim()
-	autocmd VimLeave * call <SID>unset_is_vim()
+	autocmd VimEnter * call <sid>is_vim_set()
+	autocmd VimLeave * call <sid>is_vim_unset()
 	if exists('##VimSuspend')
-		autocmd VimSuspend * call <SID>unset_is_vim()
-		autocmd VimResume * call <SID>set_is_vim()
+		autocmd VimSuspend * call <sid>is_vim_unset()
+		autocmd VimResume * call <sid>is_vim_set()
 	endif
 augroup END
 
